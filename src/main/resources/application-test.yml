@@ -1,0 +1,8 @@
+spring:
+  kafka:
+    template:
+      default-topic: default-test-topic
+
+app:
+  agent:
+    load: false
