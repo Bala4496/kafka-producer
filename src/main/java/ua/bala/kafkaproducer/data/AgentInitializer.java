@@ -30,15 +30,14 @@ public class AgentInitializer {
     public void initAgents() {
         cleanUpAgents();
         log.info("Initiating agents");
-        Flux.range(0, agentCount)
-                .flatMap(i -> agentService.createAgentAndSave())
-                .then()
-                .doOnSuccess(success -> log.info("Agents initialized: {}", agentCount))
+        agentService.saveAll(Flux.range(0, agentCount)
+                        .map(i -> agentService.createAgent()))
+                .doFinally(signal -> log.info("Agents saved"))
                 .subscribe();
     }
 
     public void cleanUpAgents() {
-        agentService.removeAllAgents()
+        agentService.removeAll()
                 .doOnSuccess(success -> log.info("Agents removed"))
                 .block();
     }
@@ -46,7 +45,7 @@ public class AgentInitializer {
     @Scheduled(fixedRateString = "#{60000 / ${app.message.ratePerMinute}}")
     public void sendMessageToKafka() {
         log.info("Sending telemetry messages");
-        agentService.getAllAgents()
+        agentService.getAll()
                 .flatMap(agent -> telemetryService.buildAndSaveTelemetryMessage(agent)
                         .doOnNext(telemetryProducer::sendMessage)
                 )

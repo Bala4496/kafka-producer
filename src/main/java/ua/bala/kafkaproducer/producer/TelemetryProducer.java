@@ -16,21 +16,10 @@ import java.util.function.BiConsumer;
 public class TelemetryProducer {
 
     private final KafkaTemplate<String, TelemetryMessage> kafkaTemplate;
-    private final BiConsumer<SendResult<String, TelemetryMessage>, Throwable> completeAction = (messageSendResult, throwable) -> {
-        var message = messageSendResult.getProducerRecord().value();
 
-        if (throwable != null) {
-            log.error("Error while sending message: " + message, throwable);
-        } else {
-            log.info("Message sent successfully: " + message);
-        }
-    };
-
-    @Async
+    @Async("basicTaskExecutor")
     public void sendMessage(TelemetryMessage message) {
-        log.info("Telemetry message is being send: {}", message);
-        kafkaTemplate.sendDefault(message)
-                .whenComplete(completeAction);
+        kafkaTemplate.sendDefault(message);
     }
 
 }

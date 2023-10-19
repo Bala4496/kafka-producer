@@ -3,6 +3,9 @@ spring:
     template:
       default-topic: default-test-topic
 
+redis-cache:
+  enabled: false
+
 app:
   agent:
     load: false

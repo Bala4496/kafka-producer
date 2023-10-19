@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 class AgentServiceTest {
 
     @InjectMocks
-    private AgentService agentService;
+    private AgentServiceImpl agentService;
     @Mock
     private AgentRepository agentRepository;
     @Mock
@@ -32,17 +32,27 @@ class AgentServiceTest {
 
     @Test
     void testCreateAgentAndSave() {
-        when(r2dbcEntityTemplate.insert(any(Agent.class))).thenAnswer(agent -> Mono.just(agent.getArgument(0, Agent.class)));
+        var agent = agentService.createAgent();
 
-        var result = agentService.createAgentAndSave();
+        assertNotNull(agent);
+        assertNotNull(agent.getId());
+        assertNotNull(agent.getManufacturer());
+        assertNotNull(agent.getOs());
+    }
+
+    @Test
+    void testSaveAllAgents() {
+        var agents = List.of(
+                getTestAgent(),
+                getTestAgent(),
+                getTestAgent()
+        );
+        when(agentRepository.saveAll(any(Flux.class))).thenReturn(Flux.fromIterable(agents));
+
+        var result = agentService.saveAll(Flux.fromIterable(agents));
 
         StepVerifier.create(result)
-                .consumeNextWith(agent -> {
-                    assertNotNull(agent);
-                    assertNotNull(agent.getId());
-                    assertNotNull(agent.getManufacturer());
-                    assertNotNull(agent.getOs());
-                })
+                .expectNextCount(agents.size())
                 .verifyComplete();
     }
 
@@ -55,7 +65,7 @@ class AgentServiceTest {
         );
         when(agentRepository.findAll()).thenReturn(Flux.fromIterable(agents));
 
-        var result = agentRepository.findAll();
+        var result = agentService.getAll();
 
         StepVerifier.create(result)
                 .expectNextCount(agents.size())
@@ -66,7 +76,7 @@ class AgentServiceTest {
     void testRemoveAllAgents() {
         when(agentRepository.deleteAll()).thenReturn(Mono.empty());
 
-        var result = agentRepository.deleteAll();
+        var result = agentService.removeAll();
 
         StepVerifier.create(result).verifyComplete();
     }

@@ -24,10 +24,14 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+redis-cache:
+  enabled: ${CACHEABLE:true}
+  host: ${REDIS_HOST:localhost}
+
 app:
   agent:
     load: true
-    count: 10
+    count: 100000
   message:
     ratePerMinute: 10
 
