@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ua.bala.kafkaproducer.model.entity.Telemetry;
 import ua.bala.kafkaproducer.producer.TelemetryProducer;
 import ua.bala.kafkaproducer.service.AgentService;
@@ -63,7 +64,10 @@ public class AgentInitializer {
         log.info("Initiating sending messages to Kafka");
         long start = System.currentTimeMillis();
         var availableIds = agentService.getAvailableIds();
-        var previousTransactionFlux = availableIds.flatMap(telemetryService::getLastTelemetryByAgentId);
+        var previousTransactionFlux = availableIds
+                .flatMap(id -> telemetryService.getLastTelemetryByAgentId(id)
+                        .switchIfEmpty(Mono.just(telemetryService.createTelemetryByAgentId(id)))
+                );
 
         availableIds.map(telemetryService::createTelemetryByAgentId)
                 .collectList()
