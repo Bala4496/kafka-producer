@@ -12,7 +12,7 @@ import java.util.UUID;
 @Table("agents")
 @Data
 @Accessors(chain = true)
-public class Agent {
+public class Agent implements Identifiable<UUID> {
 
     @Id
     @Setter(AccessLevel.NONE)

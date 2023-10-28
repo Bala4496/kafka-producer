@@ -8,6 +8,7 @@ services:
     container_name: stock-feed-mail-sender
     depends_on:
       - postgres
+      - redis
       - kafka
     environment:
       DB_HOST: stock-kafka-producer-postgres:5432
@@ -32,7 +33,7 @@ services:
 
   redis:
     image: redis:latest
-    container_name: stock-feed-redis
+    container_name: kafka-producer-redis
     ports:
       - "6379:6379"
     networks:

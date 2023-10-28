@@ -32,7 +32,9 @@ public class RedisConfig {
     @Bean
     public RedisConfiguration defaultRedisConfig() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(host);
+        var split = host.split(":");
+        config.setHostName(split[0]);
+        config.setPort(Integer.parseInt(split[1]));
         return config;
     }
 

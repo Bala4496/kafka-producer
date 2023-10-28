@@ -12,4 +12,5 @@ public class TelemetryMessage {
     private long previousMessageTime;
     private String activeService;
     private short qualityScore;
+
 }

@@ -26,14 +26,16 @@ spring:
 
 redis-cache:
   enabled: ${CACHEABLE:true}
-  host: ${REDIS_HOST:localhost}
+  host: ${REDIS_HOST:localhost:6379}
 
 app:
+  batch:
+    size: 1000
   agent:
     load: true
-    count: 100000
+    count: 1000
   message:
-    ratePerMinute: 10
+    ratePerMinute: 5
 
 logging:
   level:

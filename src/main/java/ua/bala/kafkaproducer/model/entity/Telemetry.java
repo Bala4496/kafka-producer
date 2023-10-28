@@ -14,7 +14,7 @@ import java.util.UUID;
 @Table("telemetries")
 @Data
 @Accessors(chain = true)
-public class Telemetry {
+public class Telemetry implements Identifiable<UUID> {
 
     @Id
     @Setter(AccessLevel.NONE)
@@ -27,5 +27,6 @@ public class Telemetry {
 
     public Telemetry() {
         this.id = UUID.randomUUID();
+        this.createdAt = LocalDateTime.now();
     }
 }

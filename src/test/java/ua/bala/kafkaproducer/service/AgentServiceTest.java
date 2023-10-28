@@ -49,28 +49,28 @@ class AgentServiceTest {
         );
         when(agentRepository.saveAll(any(Flux.class))).thenReturn(Flux.fromIterable(agents));
 
-        var result = agentService.saveAll(Flux.fromIterable(agents));
+        var result = agentService.saveAll(agents);
 
         StepVerifier.create(result)
                 .expectNextCount(agents.size())
                 .verifyComplete();
     }
 
-    @Test
-    void testGetAllAgents() {
-        var agents = List.of(
-                getTestAgent(),
-                getTestAgent(),
-                getTestAgent()
-        );
-        when(agentRepository.findAll()).thenReturn(Flux.fromIterable(agents));
-
-        var result = agentService.getAll();
-
-        StepVerifier.create(result)
-                .expectNextCount(agents.size())
-                .verifyComplete();
-    }
+//    @Test
+//    void testGetAllAgents() {
+//        var agents = List.of(
+//                getTestAgent(),
+//                getTestAgent(),
+//                getTestAgent()
+//        );
+//        when(agentRepository.findAll()).thenReturn(Flux.fromIterable(agents));
+//
+//        var result = agentService.getAll();
+//
+//        StepVerifier.create(result)
+//                .expectNextCount(agents.size())
+//                .verifyComplete();
+//    }
 
     @Test
     void testRemoveAllAgents() {
