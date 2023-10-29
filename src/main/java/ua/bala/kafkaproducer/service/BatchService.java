@@ -37,7 +37,7 @@ public class BatchService<T extends Identifiable<UUID>> {
                 .sequential();
     }
 
-    public static <T> Flux<List<T>> splitList(List<T> list, int batchSize) {
+    private static <T> Flux<List<T>> splitList(List<T> list, int batchSize) {
         if (batchSize <= 0) {
             throw new IllegalArgumentException("Invalid batch size: " + batchSize);
         }

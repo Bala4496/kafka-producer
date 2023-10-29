@@ -18,8 +18,8 @@ spring:
   kafka:
     template:
       default-topic: default-topic
+    bootstrap-servers: ${KAFKA_SERVERS:localhost:29092}
     producer:
-      bootstrap-servers: ${KAFKA_SERVERS:localhost:29092}
       client-id: ${spring.application.name}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

@@ -1,50 +1,79 @@
 package ua.bala.kafkaproducer.service;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ua.bala.kafkaproducer.model.entity.Agent;
-import ua.bala.kafkaproducer.model.enums.Manufacturers;
-import ua.bala.kafkaproducer.model.enums.OperationSystems;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import ua.bala.kafkaproducer.model.entity.Telemetry;
 import ua.bala.kafkaproducer.repository.TelemetryRepository;
+
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class TelemetryServiceTest {
 
     @InjectMocks
-    private TelemetryService telemetryService;
+    private TelemetryServiceImpl telemetryService;
     @Mock
     private TelemetryRepository telemetryRepository;
     @Mock
-    private R2dbcEntityTemplate r2dbcEntityTemplate;
+    private BatchService<Telemetry> batchService;
 
-//    @Test
-//    void testBuildAndSaveTelemetryMessage() {
-//        var agent = getTestAgent();
-//        when(telemetryRepository.findFirstByAgentIdOrderByCreatedAtDesc(any(UUID.class))).thenReturn(Mono.empty());
-//        when(r2dbcEntityTemplate.insert(any(Telemetry.class))).thenAnswer(telemetry -> Mono.just(telemetry.getArgument(0, Telemetry.class)));
-//
-//        var result = telemetryService.buildAndSaveTelemetryMessage(agent);
-//
-//        StepVerifier.create(result)
-//                .consumeNextWith(message -> {
-//                    assertNotNull(message);
-//                    assertNotNull(message.getUuid());
-//                    assertEquals(message.getAgentId(), agent.getId().toString());
-//                    assertNotNull(message.getActiveService());
-//                    assertTrue(message.getQualityScore() > 0 && message.getQualityScore() < 100);
-//                    assertTrue(message.getPreviousMessageTime() != 0L);
-//                })
-//                .verifyComplete();
-//
-//    }
+    @Test
+    void testCreateTelemetryByAgentId() {
+        var agentId = UUID.randomUUID();
+        var telemetry = telemetryService.createTelemetryByAgentId(agentId);
 
-    private Agent getTestAgent() {
-        return new Agent()
-                .setManufacturer(Manufacturers.WINDOWS.getValue())
-                .setOs(OperationSystems.WINDOWS.getValue());
+        assertNotNull(telemetry);
+        assertNotNull(telemetry.getId());
+        assertNotNull(telemetry.getAgentId());
+        assertNotNull(telemetry.getActiveService());
+        assertTrue(telemetry.getQualityScore() >= 0 &&
+                   telemetry.getQualityScore() <= 100);
+        assertNotNull(telemetry.getCreatedAt());
+    }
+
+    @Test
+    void testGetLastTelemetryByAgentId() {
+        var agentId = UUID.randomUUID();
+        var telemetry = telemetryService.createTelemetryByAgentId(agentId);
+
+        when(telemetryRepository.findFirstByAgentIdOrderByCreatedAtDesc(agentId))
+                .thenReturn(Mono.just(telemetry));
+
+        var result = telemetryService.getLastTelemetryByAgentId(agentId);
+
+        StepVerifier.create(result)
+                .expectNextCount(1L)
+                .verifyComplete();
+    }
+
+    @Test
+    void testSaveAll() {
+        var telemetries = List.of(
+                telemetryService.createTelemetryByAgentId(UUID.randomUUID()),
+                telemetryService.createTelemetryByAgentId(UUID.randomUUID()),
+                telemetryService.createTelemetryByAgentId(UUID.randomUUID())
+        );
+
+        when(batchService.saveAllInBatch(eq(telemetries), anyString(), anyList()))
+                .thenReturn(Flux.fromIterable(telemetries));
+
+        var result = telemetryService.saveAll(telemetries);
+
+        StepVerifier.create(result)
+                .expectNextCount(telemetries.size())
+                .verifyComplete();
     }
 
 }
