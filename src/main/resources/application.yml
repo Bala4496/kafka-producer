@@ -17,7 +17,7 @@ spring:
 
   kafka:
     template:
-      default-topic: default-topic
+      default-topic: telemetries-topic
     bootstrap-servers: ${KAFKA_SERVERS:localhost:29092}
     producer:
       client-id: ${spring.application.name}

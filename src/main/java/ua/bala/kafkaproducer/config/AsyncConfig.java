@@ -11,13 +11,13 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class AsyncConfig {
 
-    @Bean(name = "basicTaskExecutor")
-    public Executor basicTaskExecutor() {
+    @Bean(name = "telemetryTaskExecutor")
+    public Executor telemetryTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(2);
         executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("basic-task-");
+        executor.setThreadNamePrefix("telemetry-task-");
         executor.initialize();
         return executor;
     }

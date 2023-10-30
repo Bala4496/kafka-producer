@@ -1,9 +1,7 @@
 spring:
   kafka:
     template:
-      default-topic: default-test-topic
-    consumer:
-      group-id: telemetries
+      default-topic: test-telemetries-topic
 
 redis-cache:
   enabled: false

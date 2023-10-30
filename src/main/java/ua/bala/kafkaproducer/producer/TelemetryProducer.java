@@ -2,17 +2,22 @@ package ua.bala.kafkaproducer.producer;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 import ua.bala.kafkaproducer.model.message.TelemetryMessage;
 
-@Component
+import java.util.concurrent.CompletableFuture;
+
+@Service
 @RequiredArgsConstructor
 public class TelemetryProducer {
 
     private final KafkaTemplate<String, TelemetryMessage> kafkaTemplate;
 
-    public void sendMessage(TelemetryMessage message) {
-        kafkaTemplate.sendDefault(message);
+    @Async("telemetryTaskExecutor")
+    public CompletableFuture<SendResult<String, TelemetryMessage>> sendMessage(TelemetryMessage message) {
+        return kafkaTemplate.sendDefault(message);
     }
 
 }
